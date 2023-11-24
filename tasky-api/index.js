@@ -3,10 +3,17 @@ import express from 'express';
 import tasksRouter from './api/tasks';
 import usersRouter from './api/users';
 import './db';
+import cors from 'cors';
 
 dotenv.config();
 
 const errHandler = (err, req, res, next) => {
+  if (err.name === 'ValidationError') {
+    // Mongoose validation error
+    const errors = Object.values(err.errors).map((el) => el.message);
+    return res.status(400).send(`Validation error: ${errors.join(', ')}`);
+  }
+
   /* if the error in development then send stack trace to display whole error,
   if it's in production then just send error message  */
   if(process.env.NODE_ENV === 'production') {
@@ -23,6 +30,7 @@ app.use(express.json());
 app.use('/api/tasks', tasksRouter);
 app.use('/api/users', usersRouter);
 app.use(errHandler);
+app.use(cors());
 
 app.listen(port, () => {
   console.info(`Server running at ${port}`);
