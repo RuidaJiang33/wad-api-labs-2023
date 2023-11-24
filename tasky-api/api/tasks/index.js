@@ -43,5 +43,11 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+// Get all tasks
+router.get('/', async (req, res) => {
+    const tasks = await Task.find().populate('userId', 'username');
+    res.status(200).json(tasks);
+});
+
 app.use(express.json());
 export default router;
